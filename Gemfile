@@ -26,7 +26,7 @@ gem 'whenever', require: false
 
 group :development, :test do
   gem 'factory_bot_rails', '~> 6.4', '>= 6.4.3'
-  gem 'rspec-rails', '~> 6.1.3'
+  gem 'rspec-rails', '~> 8.0.4'
 end
 
 group :development do
