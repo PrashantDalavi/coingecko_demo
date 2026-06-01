@@ -35,6 +35,4 @@ test:
 
 production:
   <<: *default
-  database: coingecko_demo_production
-  username: coingecko_demo
-  password: <%= ENV["COINGECKO_DEMO_DATABASE_PASSWORD"] %>
+  url: <%= ENV["DATABASE_URL"] %>

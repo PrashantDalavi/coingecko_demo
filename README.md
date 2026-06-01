@@ -166,41 +166,40 @@ bundle exec rspec
 
 ## 🐳 Dockerization & Container Orchestration
 
-The application is fully containerized using **Docker** and **Docker Compose**, orchestrating the Rails web app, Sidekiq worker, Redis cache, PostgreSQL database, and recurring scheduler out of the box with production configurations.
+The application is fully containerized using **Docker** and **Docker Compose** in **Development Mode** out of the box. This provides a plug-and-play development environment featuring hot-reloading (live code updates) and automatic database migrations!
 
 ### Services Orchestrated
-1. **`db`** (`postgres:16-alpine`): Persistent storage volume mapping.
-2. **`redis`** (`redis:7-alpine`): Caching and Sidekiq queuing backend.
-3. **`web`** (Rails API): Port `3000` entry point with DB migration checking on boot.
-4. **`sidekiq`** (Sidekiq worker): Asynchronous price fetch tasks runner.
-5. **`scheduler`** (Bash sync-loop): Triggers `rake crypto_prices:refresh` every 60 seconds.
+1. **`db`** (`postgres:16-alpine`): Local development database (`coingecko_dev`).
+2. **`redis`** (`redis:7-alpine`): Caching and Sidekiq backend.
+3. **`web`** (Rails API): Mounted on port `3000` with hot-reloading enabled.
+4. **`sidekiq`** (Sidekiq worker): Asynchronous background job worker.
+5. **`scheduler`** (Bash sync-loop): Enqueues the sync task in Sidekiq every 60 seconds.
 
-### Quick Start with Docker Compose
+### Hot Reloading & Live Code Updates
+Your local directory `.` is mounted as a volume (`/rails`) inside the containers. This means **any code changes you make in your IDE will be instantly reflected inside the running Docker containers** without needing a rebuild or restart!
 
-A `.env` file containing your `RAILS_MASTER_KEY` has been generated for you in the project root. Docker Compose automatically picks this up, so there is no need to manually export keys or manage environment variables!
+### Quick Start
 
 #### 1. Build and Start the Containers
-Simply run the start command directly:
+Run the start command:
 ```bash
 docker compose up --build
 ```
 
 Docker Compose will automatically:
-- Load the master key securely from `.env`.
-- Wait for PostgreSQL and Redis to be fully healthy.
-- Run `db:prepare` on database startup (creating the database and running migrations).
-- Launch the web server on `http://localhost:3000`.
-- Start Sidekiq and the active scheduler daemon.
+- Spin up the Postgres and Redis servers.
+- Install all gems (including `:development` tools like `pry` and `rspec`).
+- Run `db:prepare` to automatically create your local `coingecko_dev` database and run outstanding migrations.
+- Spin up the hot-reloaded Web server, Sidekiq, and the price scheduler.
 
-#### 2. Test the Running API
-Query the containerized API via cURL:
+#### 2. Test the API
+Query the running containerized API:
 ```bash
 curl -H "Accept: application/json" "http://localhost:3000/crypto_price?crypto_id=ethereum"
 ```
 
 #### 3. Stop Services
-To clean up and stop all container services:
+To stop the services and clean up container footprints:
 ```bash
 docker compose down
-```
 ```
