@@ -1,0 +1,40 @@
+<% content_for :title, "Crypto Price Tracker" %>
+
+<main class="home-page">
+  <section class="price-tracker" data-crypto-price-tracker>
+    <div class="tracker-copy">
+      <p class="tracker-eyebrow">
+        <span class="tracker-pulse" aria-hidden="true"></span>
+        Live market lookup
+      </p>
+      <h1>Crypto Prices</h1>
+      <p>Select a coin and fetch its latest USD value from CoinGecko. The price refreshes automatically whenever the dropdown changes.</p>
+    </div>
+
+    <div class="tracker-panel">
+      <div class="tracker-controls">
+        <label for="coin_select">Choose cryptocurrency</label>
+        <div class="select-field">
+          <select id="coin_select" data-crypto-price-select>
+            <option value="bitcoin" data-name="Bitcoin (BTC)">Bitcoin (BTC)</option>
+            <option value="ethereum" data-name="Ethereum (ETH)">Ethereum (ETH)</option>
+            <option value="solana" data-name="Solana (SOL)">Solana (SOL)</option>
+            <option value="ripple" data-name="XRP (XRP)">XRP (XRP)</option>
+            <option value="cardano" data-name="Cardano (ADA)">Cardano (ADA)</option>
+            <option value="dogecoin" data-name="Dogecoin (DOGE)">Dogecoin (DOGE)</option>
+          </select>
+        </div>
+      </div>
+
+      <article class="price-card" aria-live="polite">
+        <p class="coin-name" data-crypto-price-name>Bitcoin (BTC)</p>
+        <p class="price-value" data-crypto-price-value>--</p>
+      </article>
+
+      <div class="tracker-status">
+        <span data-crypto-price-status>Ready to fetch.</span>
+        <span>Currency: <strong>USD</strong></span>
+      </div>
+    </div>
+  </section>
+</main>
