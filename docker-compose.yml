@@ -1,0 +1,96 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: coingecko_db
+    environment:
+      POSTGRES_USER: coingecko_demo
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: coingecko_demo_production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coingecko_demo -d coingecko_demo_production"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: coingecko_redis
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coingecko_web
+    command: ["./bin/rails", "server", "-b", "0.0.0.0"]
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      RAILS_ENV: production
+      DATABASE_URL: postgresql://coingecko_demo:password@db:5432/coingecko_demo_production
+      REDIS_URL: redis://redis:6379/1
+      RAILS_SERVE_STATIC_FILES: "true"
+      RAILS_FORCE_SSL: "false"
+      RAILS_LOG_TO_STDOUT: "true"
+      # Securely read Master Key from terminal environment or .env file
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+    restart: always
+
+  sidekiq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coingecko_sidekiq
+    command: ["bundle", "exec", "sidekiq"]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      RAILS_ENV: production
+      DATABASE_URL: postgresql://coingecko_demo:password@db:5432/coingecko_demo_production
+      REDIS_URL: redis://redis:6379/1
+      RAILS_LOG_TO_STDOUT: "true"
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+    restart: always
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coingecko_scheduler
+    command: ["/bin/bash", "-c", "echo 'Starting price sync scheduler...'; while true; do ./bin/rails crypto_prices:refresh; sleep 60; done"]
+    depends_on:
+      redis:
+        condition: service_healthy
+      sidekiq:
+        condition: service_started
+    environment:
+      RAILS_ENV: production
+      DATABASE_URL: postgresql://coingecko_demo:password@db:5432/coingecko_demo_production
+      REDIS_URL: redis://redis:6379/1
+      RAILS_LOG_TO_STDOUT: "true"
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+    restart: always
+
+volumes:
+  postgres_data:
+  redis_data:
