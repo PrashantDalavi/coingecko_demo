@@ -20,7 +20,7 @@ gem 'faraday', '2.9.0'
 
 gem 'redis'
 
-gem 'sidekiq', '~> 7.3'
+gem 'sidekiq', '~> 8.0'
 
 gem 'whenever', require: false
 
