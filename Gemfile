@@ -14,7 +14,7 @@ gem "tzinfo-data", platforms: %i[ windows jruby ]
 
 gem "bootsnap", require: false
 
-gem 'connection_pool', '~> 2.5'
+gem 'connection_pool', '~> 3.0'
 
 gem 'faraday', '2.9.0'
 
