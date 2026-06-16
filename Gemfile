@@ -16,7 +16,7 @@ gem "bootsnap", require: false
 
 gem 'connection_pool', '~> 2.5'
 
-gem 'faraday', '2.9.0'
+gem 'faraday', '2.14.3'
 
 gem 'redis'
 
